@@ -7,8 +7,8 @@ import { ref } from 'vue'
 const canvas = ref<HTMLCanvasElement | null>(null)
 
 function upload(evt: ProgressEvent<HTMLInputElement>): void {
-    let files = evt?.target?.files
-    if (!files || !files.length) return
+    let file = evt?.target?.files?.[0]
+    if (!file) return
 
     let reader = new FileReader()
     reader.onload = function (evt: ProgressEvent<FileReader>) {
@@ -21,7 +21,7 @@ function upload(evt: ProgressEvent<HTMLInputElement>): void {
         }
         img.src = evt?.target?.result as string
     }
-    reader.readAsDataURL(files[0])
+    reader.readAsDataURL(file)
 }
 </script>
 
