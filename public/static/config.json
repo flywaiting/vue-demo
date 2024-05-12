@@ -1,0 +1,76 @@
+{
+    "designList": [
+        {
+            "width": 300,
+            "height": 400,
+            "items": [
+                {
+                    "dx": 5,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 50,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 5,
+                    "dy": 50,
+                    "width": 30,
+                    "height": 30
+                }
+            ]
+        },
+        {
+            "width": 400,
+            "height": 600,
+            "items": [
+                {
+                    "dx": 5,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 50,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 5,
+                    "dy": 50,
+                    "width": 30,
+                    "height": 30
+                }
+            ]
+        },
+        {
+            "width": 500,
+            "height": 800,
+            "items": [
+                {
+                    "dx": 5,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 50,
+                    "dy": 5,
+                    "width": 30,
+                    "height": 30
+                },
+                {
+                    "dx": 5,
+                    "dy": 50,
+                    "width": 30,
+                    "height": 30
+                }
+            ]
+        }
+    ]
+}
