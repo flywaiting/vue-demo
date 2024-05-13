@@ -1,77 +1,103 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-// import HelloWorld from './components/HelloWorld.vue'
-// import TheWelcome from './components/TheWelcome.vue'
+import DesignCanvas from './components/DesignCanvas.vue'
 
-// const input: HTMLInputElement = ref(null)
-const canvas = ref<HTMLCanvasElement | null>(null)
+import { ref, onBeforeMount } from 'vue'
+import type { IDrawItem, IConfig } from './Interface'
 
-function upload(evt: ProgressEvent<HTMLInputElement>): void {
-    let file = evt?.target?.files?.[0]
+onBeforeMount(async () => {
+    try {
+        const rsp = await fetch('public/static/config.json')
+        if (!rsp.ok) {
+            throw new Error('配置文件加载失败')
+        }
+        cfgInit(await rsp.json())
+    } catch (error) {
+        console.error('找不到文件:', error)
+    }
+})
+
+let cfgInfo: IConfig
+function cfgInit(info: IConfig) {
+    cfgInfo = info
+    sizeList.value = info?.designList?.map((e) => [e.width, e.height])
+    upSize(0)
+    // size.value.width = sizeList.value[0][0]
+    // size.value.height = sizeList.value[0][1]
+}
+
+const size = ref({ width: 0, height: 0 })
+const drawItem = ref<IDrawItem>()
+const sizeList = ref<number[][]>([])
+const imgList = ref<IDrawItem[]>([])
+
+// function upSize(evt: Event) {
+function upSize(sel: number) {
+    // let target = evt.target as HTMLSelectElement
+    // if (!target) return
+
+    let info = sizeList.value[sel]
+    size.value.width = info[0]
+    size.value.height = info[1]
+
+    let cfg = cfgInfo.designList[sel]
+    let list: IDrawItem[] = cfg.items.map((e, idx) => {
+        return {
+            idx: idx + 1,
+            width: e.width,
+            height: e.height,
+            x: 0,
+            y: 0,
+            dx: 0,
+            dy: 0
+        }
+    })
+    list.unshift({ idx: 0, x: 0, y: 0, dx: 0, dy: 0, width: cfg.width, height: cfg.height })
+    imgList.value = list
+}
+
+function upload(el: HTMLInputElement, idx: number) {
+    let file = el?.files?.[0]
     if (!file) return
 
+    let item = imgList.value?.[idx]
+    if (!item) return
     let reader = new FileReader()
-    reader.onload = function (evt: ProgressEvent<FileReader>) {
+    reader.onload = (evt: ProgressEvent<FileReader>) => {
         let img = new Image()
-        img.onload = function () {
-            let ctx = canvas.value?.getContext('2d')
-            ctx?.drawImage(img, 0, 0)
-
-            console.log(img.width, img.height)
+        img.onload = () => {
+            item.img = img
+            drawItem.value = item
         }
-        img.src = evt?.target?.result as string
+        img.src = evt.target?.result as string
     }
     reader.readAsDataURL(file)
 }
 </script>
 
 <template>
-    <!-- <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+    <main>
+        <DesignCanvas v-bind="size" :draw-item />
+    </main>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main> -->
-
-    <canvas class="show" ref="canvas"></canvas>
-    <input type="file" @change="upload" accept="image/*" />
+    <aside>
+        <label for="canvas-size">选择画布大小</label>
+        <select name="size" id="canvas-size">
+            <option v-for="(item, idx) in sizeList" :value="item" :key="idx" @click="upSize(idx)">
+                {{ `${item[0]}x${item[1]}` }}
+            </option>
+        </select>
+        <ul>
+            <li v-for="(item, idx) of imgList" :key="idx">
+                <label :for="`img${idx}`">选择图片</label>
+                <input
+                    type="file"
+                    :name="`img${idx}`"
+                    @change="upload($event.target as HTMLInputElement, idx)"
+                    accept="image/*"
+                />
+            </li>
+        </ul>
+    </aside>
 </template>
 
-<style scoped>
-header {
-    line-height: 1.5;
-}
-
-.logo {
-    display: block;
-    margin: 0 auto 2rem;
-}
-
-.show {
-    width: 500px;
-    height: 600px;
-}
-
-@media (min-width: 1024px) {
-    header {
-        display: flex;
-        place-items: center;
-        padding-right: calc(var(--section-gap) / 2);
-    }
-
-    .logo {
-        margin: 0 2rem 0 0;
-    }
-
-    header .wrapper {
-        display: flex;
-        place-items: flex-start;
-        flex-wrap: wrap;
-    }
-}
-</style>
+<style scoped></style>
