@@ -17,82 +17,67 @@ onBeforeMount(async () => {
 })
 
 let cfgInfo: IConfig
+const sizeList = ref<number[][]>([])
 function cfgInit(info: IConfig) {
     cfgInfo = info
     sizeList.value = info?.designList?.map((e) => [e.width, e.height])
     upSize(0)
-    // size.value.width = sizeList.value[0][0]
-    // size.value.height = sizeList.value[0][1]
 }
 
-const size = ref({ width: 0, height: 0 })
-const drawItem = ref<IDrawItem>()
-const sizeList = ref<number[][]>([])
-const imgList = ref<IDrawItem[]>([])
-
-// function upSize(evt: Event) {
+const drawSize = ref({ width: 0, height: 0 })
+const imgNum = ref(0)
+let list:IDrawItem[]
 function upSize(sel: number) {
-    // let target = evt.target as HTMLSelectElement
-    // if (!target) return
-
     let info = sizeList.value[sel]
-    size.value.width = info[0]
-    size.value.height = info[1]
+    drawSize.value.width = info[0]
+    drawSize.value.height = info[1]
 
-    let cfg = cfgInfo.designList[sel]
-    let list: IDrawItem[] = cfg.items.map((e, idx) => {
-        return {
-            idx: idx + 1,
-            width: e.width,
-            height: e.height,
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0
-        }
-    })
-    list.unshift({ idx: 0, x: 0, y: 0, dx: 0, dy: 0, width: cfg.width, height: cfg.height })
-    imgList.value = list
+    let cfg = cfgInfo.designList[sel];
+    list = cfg.items.map((e, i)=>{
+        let item = {...e}
+        item.idx = i+1
+        return item
+    });
+    list.unshift({idx:0, width:cfg.width, height:cfg.height})
+    imgNum.value = list.length
 }
 
-function upload(el: HTMLInputElement, idx: number) {
+const drawItem = ref<IDrawItem>()
+function selImg(el: HTMLInputElement, idx: number) {
     let file = el?.files?.[0]
     if (!file) return
 
-    let item = imgList.value?.[idx]
+    let item = list[idx]
     if (!item) return
-    let reader = new FileReader()
-    reader.onload = (evt: ProgressEvent<FileReader>) => {
-        let img = new Image()
-        img.onload = () => {
-            item.img = img
-            drawItem.value = item
-        }
-        img.src = evt.target?.result as string
+
+    let img = new Image()
+    img.onload = ()=>{
+        item.img = img;
+        drawItem.value = {...item}
     }
-    reader.readAsDataURL(file)
+    img.src = URL.createObjectURL(file)
 }
 </script>
 
 <template>
     <main>
-        <DesignCanvas v-bind="size" :draw-item />
+        <DesignCanvas v-bind="drawSize" :draw-item />
     </main>
 
     <aside>
         <label for="canvas-size">选择画布大小</label>
         <select name="size" id="canvas-size">
-            <option v-for="(item, idx) in sizeList" :value="item" :key="idx" @click="upSize(idx)">
+            <option v-for="(item, idx) in sizeList" :key="idx" @click="upSize(idx)">
                 {{ `${item[0]}x${item[1]}` }}
             </option>
         </select>
         <ul>
-            <li v-for="(item, idx) of imgList" :key="idx">
-                <label :for="`img${idx}`">选择图片</label>
+            <li v-for="idx in imgNum" :key="idx">
+                <label :for="`img${idx}`">{{ idx>1 ? `图片${idx-1}`:'背景' }}</label>
                 <input
                     type="file"
                     :name="`img${idx}`"
-                    @change="upload($event.target as HTMLInputElement, idx)"
+                    @change="selImg($event.target as HTMLInputElement, idx-1)"
                     accept="image/*"
                 />
             </li>

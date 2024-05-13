@@ -5,16 +5,16 @@
             "height": 400,
             "items": [
                 {
-                    "dx": 5,
-                    "dy": 5,
-                    "width": 30,
-                    "height": 30
+                    "dx": 30,
+                    "dy": 30,
+                    "width": 60,
+                    "height": 60
                 },
                 {
-                    "dx": 5,
+                    "dx": 100,
                     "dy": 50,
-                    "width": 30,
-                    "height": 30
+                    "width": 80,
+                    "height": 80
                 }
             ]
         },
