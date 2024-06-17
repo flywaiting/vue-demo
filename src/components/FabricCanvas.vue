@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import type { IDrawItem } from '../Interface'
 import {fabric} from 'fabric'
 // https://blog.csdn.net/babalamoxian/article/details/123117432
@@ -10,116 +10,51 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const canvas = ref<HTMLCanvasElement>()
-const actCanvas = ref<fabric.Canvas>()
+const tmp = ref<HTMLCanvasElement>()
+const canvas = ref<fabric.Canvas>()
 
 onMounted(()=>{
-    actCanvas.value = new fabric.Canvas(canvas.value, {
+    if (!tmp.value) return;
+    fabric.Object.prototype.transparentCorners =false;
+    let c = new fabric.Canvas(tmp.value, {
         width: 500,
         height: 500,
     });
+    c.preserveObjectStacking = true
+    canvas.value = c
+
+    // 可控 应该是默认参数问题
+    fabric.Image.fromURL('/static/1.jpg', (img)=>{
+        c.add(img)
+    })
 })
 
-let itemList: IDrawItem[] = []
-let selIdx: number = 0
 watch(
     () => props.drawItem,
     (item) => {
-        if (!item) return
-        itemList[item.idx] = { ...item }
-        selIdx = item.idx
-        upUI(0, 0)
+        if (!item || !item.img) return
+        if (!canvas.value) return
+
+        let w = 500, h = 500;
+        // 只能移动, 确定相关参数
+        let img = new fabric.Image(item.img)
+        let s = Math.min(w/img.width, h/img.height)
+        img.set({
+            scaleX: s,
+            scaleY: s,
+            left: w/2,
+            top: h/2,
+            originX: 'center',
+            originY: 'center',
+        })
+        canvas.value.add(img)
     }
 )
-
-function upUI(x: number, y: number) {
-    let item = itemList[selIdx]
-    if (!item || !item.img) return
-
-    item.x = x
-    item.y = y
-    let ctx = canvas.value?.getContext('2d')
-    ctx?.clearRect(item.dx ?? 0, item.dy ?? 0, item.width, item.height)
-
-    // 处理 bg
-    let bg = itemList[0]
-    if (bg && bg.img) {
-        // 挖空 填充
-        let sx = bg.x ?? 0
-        let sy = bg.y ?? 0
-        if (selIdx != 0) {
-            sx += item.dx ?? 0
-            sy += item.dy ?? 0
-        }
-        ctx?.drawImage(
-            bg.img,
-            sx,
-            sy,
-            item.width,
-            item.height,
-            item.dx ?? 0,
-            item.dy ?? 0,
-            item.width,
-            item.height
-        )
-    }
-
-    // 过滤出需要绘制的内容
-    itemList
-        .filter((e, i) => e && (selIdx == 0) != (i == selIdx))
-        .forEach((e) => {
-            e.img &&
-                ctx?.drawImage(
-                    e.img,
-                    e.x ?? 0,
-                    e.y ?? 0,
-                    e.width,
-                    e.height,
-                    e.dx ?? 0,
-                    e.dy ?? 0,
-                    e.width,
-                    e.height
-                )
-        })
-}
-
-let last: number[]
-function moveHandle(evt: MouseEvent) {
-    switch (evt.type) {
-        case 'mousedown':
-            selIdx = Math.max(
-                0,
-                itemList.findIndex((e, i) => {
-                    return (
-                        i &&
-                        e &&
-                        evt.offsetX >= (e.dx ?? 0) &&
-                        evt.offsetX <= (e.dx ?? 0) + e.width &&
-                        evt.offsetY >= (e.dy ?? 0) &&
-                        evt.offsetY <= (e.dy ?? 0) + e.height
-                    )
-                })
-            )
-            if (!itemList[selIdx]) return
-
-            last = [evt.x + (itemList[selIdx].x ?? 0), evt.y + (itemList[selIdx].y ?? 0)]
-            document.addEventListener('mousemove', moveHandle)
-            document.addEventListener('mouseup', moveHandle)
-            break
-        case 'mousemove':
-            upUI(last[0] - evt.x, last[1] - evt.y)
-            break
-        case 'mouseup':
-            document.removeEventListener('mousemove', moveHandle)
-            document.removeEventListener('mouseup', moveHandle)
-            break
-    }
-}
 </script>
 
 <template>
     <div>
-        <canvas class="box" ref="canvas"></canvas>
+        <canvas class="box" ref="tmp"></canvas>
         <!-- todo block -->
         <!-- <canvas :width :height></canvas> -->
     </div>

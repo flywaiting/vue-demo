@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import DesignCanvas from './components/DesignCanvas.vue'
+// import DesignCanvas from './components/DesignCanvas.vue'
+import FabricCanvas from './components/FabricCanvas.vue';
 
 import { ref, onBeforeMount } from 'vue'
 import type { IDrawItem, IConfig } from './Interface'
@@ -57,7 +58,7 @@ async function selImg(el: HTMLInputElement, idx: number) {
 
 <template>
     <main>
-        <DesignCanvas v-bind="drawSize" :draw-item />
+        <FabricCanvas v-bind="drawSize" :draw-item />
     </main>
 
     <aside>
