@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import type { IDrawItem } from '../Interface'
 import {fabric} from 'fabric'
+import type { IImageOptions } from 'fabric/fabric-impl';
 // https://blog.csdn.net/babalamoxian/article/details/123117432
 interface Props {
     width: number
@@ -10,9 +11,11 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const tmp = ref<HTMLCanvasElement>()
-const canvas = ref<fabric.Canvas>()
+// note: 使用 ref 的话, 只剩下移动功能
+// const canvas = ref<fabric.Canvas>()
+let canvas: fabric.Canvas;
 
+const tmp = ref<HTMLCanvasElement>()
 onMounted(()=>{
     if (!tmp.value) return;
     fabric.Object.prototype.transparentCorners =false;
@@ -21,33 +24,39 @@ onMounted(()=>{
         height: 500,
     });
     c.preserveObjectStacking = true
-    canvas.value = c
-
-    // 可控 应该是默认参数问题
-    fabric.Image.fromURL('/static/1.jpg', (img)=>{
-        c.add(img)
-    })
+    canvas = c
 })
 
 watch(
     () => props.drawItem,
     (item) => {
-        if (!item || !item.img) return
-        if (!canvas.value) return
+        // if (!item || !item.url) return
 
         let w = 500, h = 500;
-        // 只能移动, 确定相关参数
+
+
         let img = new fabric.Image(item.img)
-        let s = Math.min(w/img.width, h/img.height)
-        img.set({
-            scaleX: s,
-            scaleY: s,
+        let s = Math.max(w/img.width, h/img.height)
+        img.scale(s).set({
+            // scaleX: s,
+            // scaleY: s,
             left: w/2,
             top: h/2,
             originX: 'center',
             originY: 'center',
-        })
-        canvas.value.add(img)
+            // clipPath: new fabric.Rect({width: 400, height: 400})
+        } as IImageOptions)
+        if (!item.idx){
+            let rect = new fabric.Rect({
+                top: 10,
+                left: 20,
+                width: 400, 
+                height: 400,
+                absolutePositioned: true,
+            })
+            img.clipPath = rect;
+        }
+        canvas.add(img)
     }
 )
 </script>
