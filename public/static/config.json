@@ -1,76 +1,24 @@
 {
-    "designList": [
-        {
-            "width": 300,
-            "height": 400,
-            "items": [
-                {
-                    "dx": 30,
-                    "dy": 30,
-                    "width": 60,
-                    "height": 60
-                },
-                {
-                    "dx": 100,
-                    "dy": 50,
-                    "width": 80,
-                    "height": 80
-                }
-            ]
-        },
-        {
-            "width": 400,
-            "height": 600,
-            "items": [
-                {
-                    "dx": 5,
-                    "dy": 5,
-                    "width": 30,
-                    "height": 30
-                },
-                {
-                    "dx": 50,
-                    "dy": 5,
-                    "width": 30,
-                    "height": 30
-                },
-                {
-                    "dx": 5,
-                    "dy": 50,
-                    "width": 30,
-                    "height": 30
-                }
-            ]
-        },
-        {
-            "width": 500,
-            "height": 800,
-            "items": [
-                {
-                    "dx": 5,
-                    "dy": 5,
-                    "width": 30,
-                    "height": 30
-                },
-                {
-                    "dx": 50,
-                    "dy": 5,
-                    "width": 30,
-                    "height": 30
-                },
-                {
-                    "dx": 50,
-                    "dy": 50,
-                    "width": 30,
-                    "height": 30
-                },
-                {
-                    "dx": 5,
-                    "dy": 50,
-                    "width": 30,
-                    "height": 30
-                }
-            ]
-        }
+    "temps": [
+        [
+            {
+                "top": 0,
+                "left": 150,
+                "width": 500,
+                "height": 800
+            },
+            {
+                "top": 100,
+                "left": 250,
+                "width": 200,
+                "height": 200
+            },
+            {
+                "top": 300,
+                "left": 450,
+                "width": 150,
+                "height": 150
+            }
+        ]
     ]
 }
